@@ -56,8 +56,6 @@ Odoo-Graviton2将通过跨境电商独立站解决方案进行示范，帮助使
 ***使用 cloudformation 部署Odoo E-commerce on Amazon Graviton2***
 *   以下指导文档 我们将通过cloudformation或手动搭建我们的测试环境，环境将使用流行的开源ERP软件`Odoo`作为应用端示范，她将运行在`AWS EKS`环境中，`RDS postgreSQL`作为默认的数据库层，`ElasticCache Redis`存储session和缓存,`EFS`和`S3`实现共享存储。以上架构在企业实际应用中常常被作为典型的应用负载框架广泛部署。兼顾弹性，稳定性，易用性，易维护性，并且所有实例节点基于Graviton2提供超高性价比
 
-![Image](https://s3.amazonaws.com/graviton2.awspsa.com/images/odoo_cloudformation.png)
-
 ### 资源清单
 
 我们将使用cloudformation模板配置以下资源：
