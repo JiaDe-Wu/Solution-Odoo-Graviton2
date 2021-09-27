@@ -7,7 +7,8 @@ Odoo-Graviton2将通过跨境电商独立站解决方案进行示范，帮助使
 ## 实验内容
 在实验环节中，我们会将一些流行技术运用到您的模拟项目中，包括容器编排技术、缓存技术、数据库高可用技术、压力测试技术等。如果您在这些方面有一定基础或学习热情，相信您会获得收获。如果您是更侧重业务的架构师，您也将通过简单的配置、点击操作体会技术架构的重要性，并轻松的亲手实现出业务信息化轮廓，期望能为您的业务方向带来灵感。
 
-![](/images/odoo_Cloudformation.png)
+![Image](https://s3.amazonaws.com/graviton2.awspsa.com/images/odoo_Cloudformation.png)
+
 
 ### 架构架构特点
 快速交付稳定、可靠、弹性、低成本的优良架构准生产系统。
@@ -55,7 +56,7 @@ Odoo-Graviton2将通过跨境电商独立站解决方案进行示范，帮助使
 ***使用 cloudformation 部署Odoo E-commerce on Amazon Graviton2***
 *   以下指导文档 我们将通过cloudformation或手动搭建我们的测试环境，环境将使用流行的开源ERP软件`Odoo`作为应用端示范，她将运行在`AWS EKS`环境中，`RDS postgreSQL`作为默认的数据库层，`ElasticCache Redis`存储session和缓存,`EFS`和`S3`实现共享存储。以上架构在企业实际应用中常常被作为典型的应用负载框架广泛部署。兼顾弹性，稳定性，易用性，易维护性，并且所有实例节点基于Graviton2提供超高性价比
 
-![](/images/odoo_cloudformation.png)
+![Image](https://s3.amazonaws.com/graviton2.awspsa.com/images/odoo_cloudformation.png)
 
 ### 资源清单
 
@@ -92,33 +93,33 @@ Odoo-Graviton2将通过跨境电商独立站解决方案进行示范，帮助使
 
 3.若您选择自定义的区域后，请导航到cloudformation服务控制台。
 
-![cloudformation Service Console](/images/cloudformation-001.png)
+![Image](https://s3.amazonaws.com/graviton2.awspsa.com/images/cloudformation-001.png)
 4.填写对应的堆栈URL，单击“创建堆栈”。
 
 5.单击“启动堆栈”按钮以启动堆栈，然后单击“下一步”：
 
-![cloudformation Service Console](/images/cloudformation-002.png) 
+![Image](https://s3.amazonaws.com/graviton2.awspsa.com/images/cloudformation-002.png) 
 
 6.你可以自定义指定为StackName，然后单击“下一步”。
-![cloudformation Service Console](/images/cloudformation-003.png)
+![Image](https://s3.amazonaws.com/graviton2.awspsa.com/images/cloudformation-003.png)
 7.填写`AZ`信息，选择您`Key pair name`的单击“下一步”。
-![cloudformation Service Console](/images/cloudformation-004.jpeg)
+![Image](https://s3.amazonaws.com/graviton2.awspsa.com/images/cloudformation-004.jpeg)
 您也可以在其他的选项中配置您需要的架构，例如：`postgreSQL、redis、堡垒机、EKS的实例类型`。`RDS的自动备份策略`、`是否多AZ部署`、`EKS集群的节点数量`，`Odoo的管理员密码`，等等。
 
 8.确认使用自定义名称创建IAM资源的权限，然后单击“创建”。
 
 
-![cloudformation Service Console](/images/cloudformation-005.png)
+![Image](https://s3.amazonaws.com/graviton2.awspsa.com/images/cloudformation-005.png)
 9.等待cloudformation供应所有资源。 大约需要35分钟才能完成执行
 
 
 10.cloudformation部署成功，包含8个内嵌stack，主stack为`Graviton2PartnerWorkshop`
 
-![cloudformation Console output](/images/cloudformation-done.png)
+![Image](https://s3.amazonaws.com/graviton2.awspsa.com/images/cloudformation-done.png)
 
 11.点击`Graviton2PartnerWorkshop`进入output，即可查看您Odoo应用的URL。
 
-![cloudformation Console output](/images/cloudformation-output.jpeg)
+![Image](https://s3.amazonaws.com/graviton2.awspsa.com/images/cloudformation-output.jpeg)
 
 
 
@@ -132,7 +133,7 @@ Odoo-Graviton2将通过跨境电商独立站解决方案进行示范，帮助使
 在您的任意浏览器输出访问output的URL，这是一个ELB负载均衡器，后面连接至EKS 集群内的各个odoo Pod的地址，例如`http://ae43138847e0343bda0586735063757c-223344533.us-east-1.elb.amazonaws.com/`
 
 输入您的自定义密码，如果cloudformation填写参数页面您没有进行改动，默认用户名密码为`admin/admin`
-![odoo-登录](/images/odoo-登录.png)
+![Image](https://s3.amazonaws.com/graviton2.awspsa.com/images/odoo-登录.png)
 ps.初次登陆时会触发应用在数据库建表，这个过程大概需要30秒等待
 
 登录后您可以看见odoo流行的企业应用列表。除了这些，odoo拥有活跃的开源社区，提供上千个成熟的企业级应用，并将这些应用封装为模块化插件，您只需点击任意模块的`install`即可进行模块安装，并主动跳转到您登陆权限对应的该应用后台管理界面。有关更多关于Odoo的信息，请您查阅 [odoo_user_doc](https://www.odoo.com/documentation/user/14.0/)
@@ -143,19 +144,19 @@ The main Odoo Apps include an Open Source CRM, Website Builder, eCommerce, Wareh
 Odoo Apps can be used as stand-alone applications, but they also integrate seamlessly so you get a full-featured Open Source ERP when you install several Apps.
 {{% /notice  %}}
 
-![odoo-app-list](/images/odoo-app-list.png)
+![Image](https://s3.amazonaws.com/graviton2.awspsa.com/images/odoo-app-list.png)
 
 现在我们点击`website`---》`install`，稍等30秒左右将会完成模块安装，并跳转到主题选择页面
 
-![odoo-install-website](/images/install-website.png)
+![Image](https://s3.amazonaws.com/graviton2.awspsa.com/images/install-website.png)
 
 进入到website编辑页面，您可以通过简单的拉拽完成自定义门户网站搭建，使用体验类似日常的办公文档编辑软件，包括双击替换图片、调整字体、替换视频URL等。当然同时您也可以直接在这个控制台浏览器窗口修改或编写html代码，以完成您需要的其他功能
 
-![odoo编辑网页](/images/odoo编辑网页.png)
+![Image](https://s3.amazonaws.com/graviton2.awspsa.com/images/odoo编辑网页.png)
 
 点击左上角的主图标，您可以选择其他项目，例如点击`settings`设置系统为中文，点击`apps`安装其他应用，或许您现在就可以在10分钟内完成一个在线教育平台的demo。
 
-![odoo-安装其他应用](/images/odoo安装其他应用.jpeg)
+![Image](https://s3.amazonaws.com/graviton2.awspsa.com/images/odoo安装其他应用.jpeg)
 
 
 ----
@@ -196,7 +197,7 @@ eksctl create iamidentitymapping --cluster odoo \
 ```
 编辑完成后您可以通过控制台查看您的集群
 
-![DR](/images/EKS控制台.png)
+![Image](https://s3.amazonaws.com/graviton2.awspsa.com/images/EKS控制台.png)
 
 如果您还需要通过你自己的笔记本管理集群，你需要在本地配置了相应的aksk，完成后可以在本地运行`kubectl get nodes`，进行测试
 
