@@ -1,0 +1,125 @@
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: odoo
+  labels:
+    name: odoo
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: efs-sc
+provisioner: efs.csi.aws.com
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: efs-pvc
+spec:
+  capacity:
+    storage: 100Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-sc
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: fs-f08803f4
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: efs-storage-claim
+  namespace: odoo
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: efs-sc
+  resources:
+    requests:
+      storage: 100Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: odoo-efs-test
+  namespace: odoo
+  labels:
+    app: odoo-efs-test
+spec:
+  ports:
+    - port: 80
+      targetPort: 8069
+  selector:
+    app: odoo-efs-test
+    tier: frontend
+#  type: NodePort
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: odoo-efs-test
+  namespace: odoo
+  labels:
+    app: odoo-efs-test
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: odoo-efs-test
+  template:
+    metadata:
+      labels:
+        app: odoo-efs-test
+        tier: frontend
+    spec:
+      containers:
+        - image: odoo:latest
+          name: odoo
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          ports:
+            - containerPort: 8069
+              name: odoo
+          volumeMounts:
+          - name: odoo-pvc-test
+            mountPath: /var/lib/odoo
+          - name: config-volume
+            mountPath: "/etc/odoo/"
+      volumes:
+      - name: odoo-pvc-test
+        persistentVolumeClaim:
+          claimName: odoo-pvc
+      - name: config-volume
+        configMap:
+          name: odoo-config-efs-test
+      nodeSelector:
+        kubernetes.io/arch: amd64
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: odoo-config-efs-test
+  namespace: odoo
+data:
+  odoo.conf: |-
+    [options]
+    addons_path = /mnt/extra-addons
+    data_dir = /var/lib/odoo
+    db_host = odoo.crg58mp5f0ba.us-west-2.rds.amazonaws.com
+    db_port = 5432
+    db_name = odoo-efs-test
+    db_user = odoo
+    db_password = odoodemo
+---

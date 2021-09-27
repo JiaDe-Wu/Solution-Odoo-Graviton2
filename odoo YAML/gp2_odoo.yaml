@@ -1,0 +1,124 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: gp2-odoo
+  namespace: odoo
+  labels:
+    app: gp2-odoo
+spec:
+  ports:
+    - port: 80
+      targetPort: 8069
+  selector:
+    app: gp2-odoo
+    tier: frontend
+#  type: NodePort
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gp2-odoo
+  namespace: odoo
+  labels:
+    app: gp2-odoo
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: gp2-odoo
+  template:
+    metadata:
+      labels:
+        app: gp2-odoo
+        tier: frontend
+    spec:
+      containers:
+        - image: wujiade/graviton2-psa:v1
+          name: odoo
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          ports:
+            - containerPort: 8069
+              name: odoo
+          volumeMounts:
+          - name: odoo-pvc-gp2
+            mountPath: /var/lib/odoo
+          - name: config-volume
+            mountPath: "/etc/odoo/"
+      volumes:
+      - name: odoo-pvc-gp2
+        persistentVolumeClaim:
+          claimName: odoo-pvc-gp2
+      - name: config-volume
+        configMap:
+          name: odoo-config-gp2
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: odoo-pvc-gp2
+  namespace: odoo
+  labels:
+    app: gp2-odoo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: odoo-config-gp2
+  namespace: odoo
+data:
+  odoo.conf: |-
+    [options]
+    addons_path = /mnt/extra-addons
+    data_dir = /var/lib/odoo
+    db_host = odoo.cmq96p5vz1ps.us-east-1.rds.amazonaws.com
+    db_port = 5432
+    db_name = odoo-gp2
+    db_user = odoo
+    db_password = odoodemo
+    admin_passwd = admin
+    csv_internal_sep = ,
+    db_maxconn = 64
+    db_template = template1
+    dbfilter = .*
+    debug_mode = False
+    email_from = False
+    limit_memory_hard = 4294967296
+    limit_memory_soft = 3758096384
+    limit_request = 8192
+    limit_time_cpu = 80
+    limit_time_real = 120
+    list_db = True
+    log_db = False
+    log_handler = [':INFO']
+    log_level = info
+    logfile = None
+    longpolling_port = 8072
+    max_cron_threads = 4
+    osv_memory_age_limit = 1.0
+    osv_memory_count_limit = False
+    smtp_password = False
+    smtp_port = 25
+    smtp_server = localhost
+    smtp_ssl = False
+    smtp_user = False
+    workers = 0
+    xmlrpc = True
+    xmlrpc_interface = 
+    xmlrpc_port = 8069
+    xmlrpcs = True
+    xmlrpcs_interface = 
+    xmlrpcs_port = 8071

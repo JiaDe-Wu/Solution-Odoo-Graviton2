@@ -1,0 +1,141 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: odoo
+
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: efs-sc
+provisioner: efs.csi.aws.com
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: efs-pvc
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-sc
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: fs-a481d450
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: efs-storage-claim
+  namespace: odoo
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: efs-sc
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: odoo-arm
+  namespace: odoo
+  labels:
+    app: odoo-arm
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-1:263168716248:certificate/59c09867-3483-4973-97fd-d7b45558395c
+    service.beta.kubernetes.io/aws-load-balancer-ssl-negotiation-policy: ELBSecurityPolicy-TLS-1-1-2017-01
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: TLS
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+spec:
+  ports:
+    - name: https
+      port: 443
+      targetPort: 8069
+    - name: http
+      port: 80
+      targetPort: 8069
+  selector:
+    app: odoo-arm
+    tier: frontend
+  type: LoadBalancer
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: odoo-config
+  namespace: odoo
+data:
+  odoo.conf: |-
+    [options]
+    addons_path = /mnt/extra-addons
+    data_dir = /var/lib/odoo
+    proxy_mode = True
+    db_host = odoo.cmq96p5vz1ps.us-east-1.rds.amazonaws.com
+    db_port = 5432
+    db_name = odoo
+    db_user = odoo
+    db_password = odoodemo
+    server_wide_modules = base,web,smile_redis_session_store,attachment_s3
+    enable_redis = True
+    redis_host = odoo-001.jvvv4n.0001.use1.cache.amazonaws.com
+    redis_port = 6379
+    redis_dbindex = 1
+    max_cron_threads = 4
+    logrotate = False
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: odoo-arm
+  namespace: odoo
+  labels:
+    app: odoo-arm
+spec:
+  replicas: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: odoo-arm
+  template:
+    metadata:
+      labels:
+        app: odoo-arm
+        tier: frontend
+    spec:
+      containers:
+        - image: wujiade/odoo-graviton2:v3
+          name: odoo-arm
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          ports:
+            - containerPort: 8069
+              name: odoo
+          volumeMounts:
+          - name: efs-pvc
+            mountPath: /var/lib/odoo
+          - name: config-volume
+            mountPath: "/etc/odoo/"
+      volumes:
+      - name: efs-pvc
+        persistentVolumeClaim:
+          claimName: efs-storage-claim
+      - name: config-volume
+        configMap:
+          name: odoo-config
+      nodeSelector:
+        kubernetes.io/arch: arm64
