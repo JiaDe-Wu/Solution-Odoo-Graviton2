@@ -9,7 +9,7 @@ https://www.awspsa.com/
 ## 部署手册
 按照下述部署手册，我们会将一些流行技术运用到您的模拟项目中，包括容器编排技术、缓存技术、数据库高可用技术、压力测试技术等。如果您在这些方面有一定基础或学习热情，相信您会获得收获。如果您是更侧重业务的架构师，您也将通过简单的配置、点击操作体会技术架构的重要性，并轻松的亲手实现出业务信息化轮廓，期望能为您的业务方向带来灵感。
 
-![Image](https://s3.amazonaws.com/graviton2.awspsa.com/images/odoo_Cloudformation.png)
+![Image](/Architecture.png)
 
 
 ### 架构架构特点
